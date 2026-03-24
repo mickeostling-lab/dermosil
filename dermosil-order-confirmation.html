@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dermosil – Order Confirmation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --primary: #1a4d3e;
+    --primary-light: #e8f0ed;
+    --primary-hover: #2a6b56;
+    --accent: #c8a96e;
+    --accent-light: #f5efe4;
+    --bg: #f7f7f5;
+    --white: #ffffff;
+    --text: #1a1a1a;
+    --text-secondary: #6b6b6b;
+    --text-muted: #999;
+    --border: #e5e5e5;
+    --danger: #d94f4f;
+    --danger-light: #fef2f2;
+    --success: #2d8a5e;
+    --success-light: #edfaf3;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Header */
+  .header {
+    background: var(--white);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-logo {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+  }
+  .header-logo span { color: var(--accent); }
+  .header-order {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* Success Banner */
+  .success-banner {
+    background: linear-gradient(135deg, var(--primary) 0%, #2a6b56 100%);
+    color: white;
+    padding: 32px 24px 28px;
+    text-align: center;
+  }
+  .success-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 28px;
+  }
+  .success-banner h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.3px;
+  }
+  .success-banner p {
+    font-size: 14px;
+    line-height: 1.6;
+    opacity: 0.9;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+
+  /* Content wrapper */
+  .content { padding: 16px; }
+
+  /* Section Card */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 18px 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-header-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .card-header h2 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .card-header .subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+  .card-body { padding: 16px 20px 20px; }
+
+  /* Timer badge */
+  .timer-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--danger-light);
+    color: var(--danger);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-left: auto;
+  }
+  .timer-badge svg { width: 14px; height: 14px; }
+  .timer-badge.expired {
+    background: #f0f0f0;
+    color: var(--text-muted);
+  }
+
+  /* Map */
+  .map-container {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 16px;
+    position: relative;
+    height: 180px;
+    background: #e8ece5;
+  }
+  .map-svg { width: 100%; height: 100%; }
+  .map-pin {
+    position: absolute;
+    top: 50%;
+    left: 52%;
+    transform: translate(-50%, -100%);
+    z-index: 2;
+  }
+  .map-pin-dot {
+    width: 14px;
+    height: 14px;
+    background: var(--danger);
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(217,79,79,0.4);
+    position: relative;
+  }
+  .map-pin-dot::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(217,79,79,0.12);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.4); opacity: 0; }
+  }
+  .map-label {
+    position: absolute;
+    top: calc(50% - 44px);
+    left: calc(52% + 14px);
+    background: var(--white);
+    padding: 6px 12px;
+    border-radius: 8px;
+    box-shadow: var(--shadow-md);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    z-index: 3;
+  }
+  .map-label::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-right: 6px solid var(--white);
+  }
+
+  /* Delivery info row */
+  .delivery-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: var(--primary-light);
+    border-radius: var(--radius-sm);
+    margin-bottom: 12px;
+  }
+  .delivery-logo {
+    width: 44px;
+    height: 44px;
+    background: var(--white);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 9px;
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+    text-align: center;
+    line-height: 1.1;
+  }
+  .delivery-details h3 { font-size: 14px; font-weight: 600; }
+  .delivery-details p { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-family: inherit;
+    width: 100%;
+  }
+  .btn-outline {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  .btn-accent {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-sm {
+    padding: 8px 14px;
+    font-size: 13px;
+    width: auto;
+    border-radius: 8px;
+  }
+  .btn-ghost {
+    background: transparent;
+    border: none;
+    color: var(--primary);
+    padding: 8px 0;
+    font-weight: 600;
+  }
+
+  /* Product list */
+  .product-item {
+    display: flex;
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .product-item:last-child { border-bottom: none; }
+  .product-thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #f0ebe3 0%, #e8e0d4 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .product-info { flex: 1; min-width: 0; }
+  .product-name {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+  .product-variant {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .product-price {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .product-qty {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  /* Order Summary */
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 14px;
+  }
+  .summary-row.total {
+    border-top: 2px solid var(--text);
+    margin-top: 8px;
+    padding-top: 12px;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .summary-label { color: var(--text-secondary); }
+  .summary-row.total .summary-label { color: var(--text); }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+  }
+
+  /* Change delivery modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-sheet {
+    background: var(--white);
+    border-radius: 24px 24px 0 0;
+    width: 100%;
+    max-width: 430px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 8px 20px 32px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-handle {
+    width: 36px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 8px auto 20px;
+  }
+  .modal-sheet h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .modal-sheet .modal-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+
+  /* Zip code input */
+  .zip-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .zip-input-group input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .zip-input-group input:focus { border-color: var(--primary); }
+
+  /* Delivery option */
+  .delivery-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .delivery-option:hover { border-color: var(--primary); }
+  .delivery-option.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+  }
+  .delivery-option-radio {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+  .delivery-option.selected .delivery-option-radio {
+    border-color: var(--primary);
+  }
+  .delivery-option.selected .delivery-option-radio::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--primary);
+  }
+  .delivery-option-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--white);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8px;
+    font-weight: 700;
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+    text-align: center;
+    line-height: 1.1;
+  }
+  .delivery-option-info { flex: 1; }
+  .delivery-option-name { font-size: 14px; font-weight: 600; }
+  .delivery-option-desc { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+  .delivery-option-price {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Search input */
+  .search-input {
+    width: 100%;
+    padding: 12px 16px 12px 40px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    background: var(--bg);
+    transition: all 0.2s;
+  }
+  .search-input:focus {
+    border-color: var(--primary);
+    background: var(--white);
+  }
+  .search-wrapper {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+  }
+
+  /* Add product item */
+  .add-product-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .add-product-item:last-child { border-bottom: none; }
+  .add-product-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #f0ebe3, #e8e0d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .add-product-info { flex: 1; min-width: 0; }
+  .add-product-name { font-size: 13px; font-weight: 600; }
+  .add-product-price { font-size: 12px; color: var(--text-secondary); }
+  .btn-add {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--primary);
+    background: var(--white);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .btn-add:hover { background: var(--primary-light); }
+  .btn-add.added {
+    background: var(--success-light);
+    border-color: var(--success);
+    color: var(--success);
+  }
+
+  /* Added items section */
+  .added-items-section {
+    display: none;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 2px solid var(--primary);
+  }
+  .added-items-section.visible { display: block; }
+  .added-items-section h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--primary);
+  }
+  .added-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .added-item:last-child { border-bottom: none; }
+  .remove-item {
+    background: none;
+    border: none;
+    color: var(--danger);
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+  }
+
+  /* Inspiration */
+  .inspiration-card {
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .inspiration-card:hover { transform: translateY(-2px); }
+  .inspiration-card:last-child { margin-bottom: 0; }
+  .inspiration-img {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    position: relative;
+  }
+  .inspiration-img .overlay-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 12px 16px;
+    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .inspiration-content { padding: 14px 16px; background: var(--white); }
+  .inspiration-content h4 { font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 4px; }
+  .inspiration-content p { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+  .inspiration-content .read-more {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 24px 20px 40px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+
+  /* Toast notification */
+  .toast {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text);
+    color: white;
+    padding: 14px 24px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 300;
+    box-shadow: var(--shadow-lg);
+    white-space: nowrap;
+  }
+  .toast.show { display: block; animation: fadeInUp 0.3s ease; }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translate(-50%, 10px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+  }
+
+  /* Expired state */
+  .section-expired .btn-outline,
+  .section-expired .btn-primary {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .expired-msg {
+    display: none;
+    font-size: 13px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 8px 0;
+    font-style: italic;
+  }
+  .section-expired .expired-msg { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-logo">dermosil<span>.</span></div>
+  <div class="header-order">Order #DS-240326-7182</div>
+</div>
+
+<!-- Success Banner -->
+<div class="success-banner">
+  <div class="success-icon">&#10003;</div>
+  <h1>Thank you for your order</h1>
+  <p>Thanks for choosing Dermosil. We have now received your order and our warehouse team will process it shortly.</p>
+</div>
+
+<div class="content">
+
+  <!-- DELIVERY SECTION -->
+  <div class="card" id="deliverySection">
+    <div class="card-header">
+      <div class="card-header-icon" style="background: var(--primary-light); color: var(--primary);">&#128230;</div>
+      <div>
+        <h2>Delivery</h2>
+        <div class="subtitle">Estimated arrival: Mar 27 – Mar 28</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <!-- Map -->
+      <div class="map-container">
+        <svg class="map-svg" viewBox="0 0 430 180" xmlns="http://www.w3.org/2000/svg">
+          <!-- Water areas -->
+          <path d="M0,60 Q60,40 100,65 Q140,90 120,120 Q100,150 60,145 Q20,140 0,160 Z" fill="#c5d8e8" opacity="0.5"/>
+          <path d="M320,0 Q360,20 380,60 Q400,100 430,80 L430,0 Z" fill="#c5d8e8" opacity="0.5"/>
+          <path d="M180,140 Q220,130 260,155 Q300,180 340,170 L340,180 L180,180 Z" fill="#c5d8e8" opacity="0.4"/>
+          <path d="M0,0 Q30,30 20,60 L0,60 Z" fill="#c5d8e8" opacity="0.4"/>
+          <!-- Roads grid -->
+          <line x1="80" y1="0" x2="80" y2="180" stroke="#d4d9cf" stroke-width="1.5"/>
+          <line x1="150" y1="0" x2="150" y2="180" stroke="#d4d9cf" stroke-width="1.5"/>
+          <line x1="220" y1="0" x2="220" y2="180" stroke="#d4d9cf" stroke-width="2" opacity="0.8"/>
+          <line x1="290" y1="0" x2="290" y2="180" stroke="#d4d9cf" stroke-width="1.5"/>
+          <line x1="360" y1="0" x2="360" y2="180" stroke="#d4d9cf" stroke-width="1.5"/>
+          <line x1="0" y1="30" x2="430" y2="30" stroke="#d4d9cf" stroke-width="1.5"/>
+          <line x1="0" y1="70" x2="430" y2="70" stroke="#d4d9cf" stroke-width="1.5"/>
+          <line x1="0" y1="90" x2="430" y2="90" stroke="#d4d9cf" stroke-width="2" opacity="0.8"/>
+          <line x1="0" y1="120" x2="430" y2="120" stroke="#d4d9cf" stroke-width="1.5"/>
+          <line x1="0" y1="150" x2="430" y2="150" stroke="#d4d9cf" stroke-width="1.5"/>
+          <!-- Diagonal roads -->
+          <line x1="100" y1="0" x2="260" y2="180" stroke="#d4d9cf" stroke-width="1.5"/>
+          <line x1="300" y1="0" x2="180" y2="180" stroke="#d4d9cf" stroke-width="1"/>
+          <!-- Parks/green areas -->
+          <ellipse cx="170" cy="50" rx="25" ry="18" fill="#c8d8be" opacity="0.5"/>
+          <ellipse cx="310" cy="130" rx="20" ry="15" fill="#c8d8be" opacity="0.5"/>
+          <ellipse cx="100" cy="100" rx="15" ry="12" fill="#c8d8be" opacity="0.5"/>
+          <!-- Major road highlight (Götgatan-ish) -->
+          <line x1="220" y1="0" x2="220" y2="180" stroke="#bfc7b8" stroke-width="4" opacity="0.5"/>
+          <!-- Text labels -->
+          <text x="200" y="18" font-size="8" fill="#8a9680" font-family="Inter, sans-serif" font-weight="500">Vasastan</text>
+          <text x="280" y="65" font-size="8" fill="#8a9680" font-family="Inter, sans-serif" font-weight="500">Östermalm</text>
+          <text x="115" y="85" font-size="8" fill="#8a9680" font-family="Inter, sans-serif" font-weight="500">Kungsholmen</text>
+          <text x="200" y="105" font-size="8" fill="#8a9680" font-family="Inter, sans-serif" font-weight="500">Norrmalm</text>
+          <text x="130" y="135" font-size="7" fill="#8a9680" font-family="Inter, sans-serif" font-weight="500">Gamla stan</text>
+          <text x="190" y="165" font-size="8" fill="#8a9680" font-family="Inter, sans-serif" font-weight="500">Södermalm</text>
+          <text x="50" y="50" font-size="7" fill="#8ba3b8" font-family="Inter, sans-serif">Mälaren</text>
+        </svg>
+        <div class="map-pin"><div class="map-pin-dot"></div></div>
+        <div class="map-label">ICA Nära Annedal</div>
+      </div>
+
+      <!-- Delivery method info -->
+      <div class="delivery-info">
+        <div class="delivery-logo">Insta<br>box</div>
+        <div class="delivery-details">
+          <h3>Instabox → ICA Nära Annedal</h3>
+          <p>Odengatan 92, 113 22 Stockholm</p>
+        </div>
+      </div>
+
+      <!-- Change delivery -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+        <span style="font-size: 13px; font-weight: 600;">Change delivery method</span>
+        <div class="timer-badge" id="deliveryTimer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span id="deliveryTimerText">10:00</span>
+        </div>
+      </div>
+      <button class="btn btn-outline" id="changeDeliveryBtn" onclick="openDeliveryModal()">
+        &#x21C4;&nbsp; Change delivery method
+      </button>
+      <p class="expired-msg">The time to change delivery has expired</p>
+    </div>
+  </div>
+
+  <!-- ORDERED PRODUCTS SECTION -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon" style="background: var(--accent-light); color: var(--accent);">&#128722;</div>
+      <div><h2>Ordered products</h2><div class="subtitle">5 items</div></div>
+    </div>
+    <div class="card-body">
+      <div id="productList">
+        <div class="product-item">
+          <div class="product-thumb">&#129526;</div>
+          <div class="product-info">
+            <div class="product-name">Vitamin C Brightening Serum</div>
+            <div class="product-variant">30 ml</div>
+          </div>
+          <div>
+            <div class="product-price">289 kr</div>
+            <div class="product-qty">Qty: 1</div>
+          </div>
+        </div>
+        <div class="product-item">
+          <div class="product-thumb">&#129523;</div>
+          <div class="product-info">
+            <div class="product-name">Hydra Boost Moisturizer</div>
+            <div class="product-variant">50 ml</div>
+          </div>
+          <div>
+            <div class="product-price">349 kr</div>
+            <div class="product-qty">Qty: 1</div>
+          </div>
+        </div>
+        <div class="product-item">
+          <div class="product-thumb">&#127807;</div>
+          <div class="product-info">
+            <div class="product-name">Gentle Foaming Cleanser</div>
+            <div class="product-variant">150 ml</div>
+          </div>
+          <div>
+            <div class="product-price">199 kr</div>
+            <div class="product-qty">Qty: 1</div>
+          </div>
+        </div>
+        <div class="product-item">
+          <div class="product-thumb">&#10024;</div>
+          <div class="product-info">
+            <div class="product-name">Niacinamide Pore Refining Toner</div>
+            <div class="product-variant">200 ml</div>
+          </div>
+          <div>
+            <div class="product-price">229 kr</div>
+            <div class="product-qty">Qty: 1</div>
+          </div>
+        </div>
+        <div class="product-item">
+          <div class="product-thumb">&#128167;</div>
+          <div class="product-info">
+            <div class="product-name">Retinol Night Repair Cream</div>
+            <div class="product-variant">50 ml</div>
+          </div>
+          <div>
+            <div class="product-price">399 kr</div>
+            <div class="product-qty">Qty: 1</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="divider"></div>
+      <div id="orderSummary">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal (5 items)</span>
+          <span id="subtotalAmount">1 465 kr</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Shipping</span>
+          <span>49 kr</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Discount (VIP -10%)</span>
+          <span style="color: var(--success);">−147 kr</span>
+        </div>
+        <div class="summary-row total">
+          <span class="summary-label">Total</span>
+          <span id="totalAmount">1 367 kr</span>
+        </div>
+      </div>
+
+      <!-- Did you forget something? -->
+      <div class="divider"></div>
+      <div id="forgetSection">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+          <span style="font-size: 15px; font-weight: 700;">Did you forget something?</span>
+          <div class="timer-badge" id="addTimer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span id="addTimerText">10:00</span>
+          </div>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">
+          Add more products to your order within the time limit.
+        </p>
+        <button class="btn btn-outline" id="addProductsBtn" onclick="openAddProductsModal()">
+          &#43;&nbsp; Add products to order
+        </button>
+        <p class="expired-msg">The time to add products has expired</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSPIRATION SECTION -->
+  <div class="card">
+    <div class="card-header" style="padding-bottom: 4px;">
+      <div class="card-header-icon" style="background: #fef4e8; color: #e0960a;">&#128161;</div>
+      <div><h2>Inspiration for you</h2><div class="subtitle">Based on your order</div></div>
+    </div>
+    <div class="card-body">
+      <div class="inspiration-card">
+        <div class="inspiration-img" style="background: linear-gradient(135deg, #fce4b8 0%, #f5d08e 100%);">
+          &#9728;&#65039;
+          <div class="overlay-text">Skincare guide</div>
+        </div>
+        <div class="inspiration-content">
+          <h4>The Ultimate Guide to Vitamin C in Your Skincare Routine</h4>
+          <p>Learn how to maximize the brightening effects of Vitamin C serum and pair it with complementary ingredients for glowing skin.</p>
+          <span class="read-more">Read article &rarr;</span>
+        </div>
+      </div>
+
+      <div class="inspiration-card">
+        <div class="inspiration-img" style="background: linear-gradient(135deg, #d4e8d0 0%, #a8d4a0 100%);">
+          &#127811;
+          <div class="overlay-text">Expert tips</div>
+        </div>
+        <div class="inspiration-content">
+          <h4>Evening Routine: How Retinol Transforms Your Skin While You Sleep</h4>
+          <p>Discover the science behind retinol and how to build a nighttime routine that repairs and rejuvenates.</p>
+          <span class="read-more">Read article &rarr;</span>
+        </div>
+      </div>
+
+      <div class="inspiration-card">
+        <div class="inspiration-img" style="background: linear-gradient(135deg, #c5ddf0 0%, #92bee8 100%);">
+          &#128167;
+          <div class="overlay-text">Hydration tips</div>
+        </div>
+        <div class="inspiration-content">
+          <h4>Niacinamide + Hyaluronic Acid: The Hydration Power Duo</h4>
+          <p>Why these two hero ingredients work even better together, and how to layer them correctly for maximum hydration.</p>
+          <span class="read-more">Read article &rarr;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <p>A confirmation email has been sent to<br><strong>mikael@example.com</strong></p>
+    <p style="margin-top: 12px;">Need help? <a href="#">Contact support</a></p>
+    <p style="margin-top: 8px;">&copy; 2026 Dermosil. All rights reserved.</p>
+  </div>
+
+</div>
+
+<!-- CHANGE DELIVERY MODAL -->
+<div class="modal-overlay" id="deliveryModal" onclick="closeDeliveryModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <h3>Change delivery method</h3>
+    <p class="modal-sub">Enter your zip code to see available delivery options.</p>
+
+    <div class="zip-input-group">
+      <input type="text" id="zipInput" placeholder="Zip code" value="113 22" maxlength="6">
+      <button class="btn btn-primary btn-sm" onclick="searchDeliveryOptions()">Search</button>
+    </div>
+
+    <div id="deliveryOptions">
+      <div class="delivery-option selected" onclick="selectDelivery(this, 'instabox')">
+        <div class="delivery-option-radio"></div>
+        <div class="delivery-option-icon">Insta<br>box</div>
+        <div class="delivery-option-info">
+          <div class="delivery-option-name">Instabox – ICA Nära Annedal</div>
+          <div class="delivery-option-desc">Odengatan 92 · 1–2 days</div>
+        </div>
+        <div class="delivery-option-price">49 kr</div>
+      </div>
+      <div class="delivery-option" onclick="selectDelivery(this, 'postnord')">
+        <div class="delivery-option-radio"></div>
+        <div class="delivery-option-icon" style="font-size: 7px;">Post<br>Nord</div>
+        <div class="delivery-option-info">
+          <div class="delivery-option-name">PostNord – Hemköp Odengatan</div>
+          <div class="delivery-option-desc">Odengatan 78 · 2–3 days</div>
+        </div>
+        <div class="delivery-option-price">39 kr</div>
+      </div>
+      <div class="delivery-option" onclick="selectDelivery(this, 'budbee')">
+        <div class="delivery-option-radio"></div>
+        <div class="delivery-option-icon" style="font-size: 7px;">Bud<br>bee</div>
+        <div class="delivery-option-info">
+          <div class="delivery-option-name">Budbee – Home delivery</div>
+          <div class="delivery-option-desc">To your door · 1–2 days</div>
+        </div>
+        <div class="delivery-option-price">79 kr</div>
+      </div>
+      <div class="delivery-option" onclick="selectDelivery(this, 'dhl')">
+        <div class="delivery-option-radio"></div>
+        <div class="delivery-option-icon" style="font-size: 8px; color: #cc0;">DHL</div>
+        <div class="delivery-option-info">
+          <div class="delivery-option-name">DHL – Service Point Sveavägen</div>
+          <div class="delivery-option-desc">Sveavägen 56 · 2–4 days</div>
+        </div>
+        <div class="delivery-option-price">29 kr</div>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" style="margin-top: 16px;" onclick="confirmDeliveryChange()">Confirm change</button>
+    <button class="btn btn-ghost" style="margin-top: 4px;" onclick="closeDeliveryModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD PRODUCTS MODAL -->
+<div class="modal-overlay" id="addProductsModal" onclick="closeAddProductsModal(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+      <h3>Add products</h3>
+      <div class="timer-badge" id="modalAddTimer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px;">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <span id="modalAddTimerText">10:00</span>
+      </div>
+    </div>
+    <p class="modal-sub">Search and add more products to your order.</p>
+
+    <div class="search-wrapper">
+      <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" class="search-input" id="productSearch" placeholder="Search products..." oninput="filterProducts()">
+    </div>
+
+    <div id="availableProducts"></div>
+
+    <div class="added-items-section" id="addedItemsSection">
+      <h4>Added to order</h4>
+      <div id="addedItemsList"></div>
+      <button class="btn btn-primary" style="margin-top: 14px;" onclick="updateOrder()">
+        &#10003;&nbsp; Update order
+      </button>
+    </div>
+
+    <button class="btn btn-ghost" style="margin-top: 8px;" onclick="closeAddProductsModal()">Close</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ---- COUNTDOWN TIMERS ----
+  const TIMER_DURATION = 10 * 60; // 10 minutes in seconds
+  let deliveryTimeLeft = TIMER_DURATION;
+  let addTimeLeft = TIMER_DURATION;
+
+  function formatTime(seconds) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
+
+  function updateTimers() {
+    // Delivery timer
+    if (deliveryTimeLeft > 0) {
+      deliveryTimeLeft--;
+      document.getElementById('deliveryTimerText').textContent = formatTime(deliveryTimeLeft);
+    } else {
+      document.getElementById('deliveryTimer').classList.add('expired');
+      document.getElementById('deliveryTimerText').textContent = 'Expired';
+      document.getElementById('deliverySection').querySelector('.card-body').classList.add('section-expired');
+    }
+
+    // Add products timer
+    if (addTimeLeft > 0) {
+      addTimeLeft--;
+      const timeStr = formatTime(addTimeLeft);
+      document.getElementById('addTimerText').textContent = timeStr;
+      document.getElementById('modalAddTimerText').textContent = timeStr;
+    } else {
+      document.getElementById('addTimer').classList.add('expired');
+      document.getElementById('addTimerText').textContent = 'Expired';
+      document.getElementById('modalAddTimerText').textContent = 'Expired';
+      document.getElementById('forgetSection').classList.add('section-expired');
+    }
+  }
+
+  setInterval(updateTimers, 1000);
+
+  // ---- DELIVERY MODAL ----
+  function openDeliveryModal() {
+    if (deliveryTimeLeft <= 0) return;
+    document.getElementById('deliveryModal').classList.add('active');
+  }
+  function closeDeliveryModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('deliveryModal').classList.remove('active');
+  }
+  function selectDelivery(el, method) {
+    document.querySelectorAll('.delivery-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+  function searchDeliveryOptions() {
+    showToast('Searching delivery options...');
+  }
+  function confirmDeliveryChange() {
+    const selected = document.querySelector('.delivery-option.selected');
+    if (selected) {
+      const name = selected.querySelector('.delivery-option-name').textContent;
+      const desc = selected.querySelector('.delivery-option-desc').textContent;
+      document.querySelector('.delivery-details h3').textContent = name;
+      document.querySelector('.delivery-details p').textContent = desc.split('·')[0].trim() + ', 113 22 Stockholm';
+      const logoText = selected.querySelector('.delivery-option-icon').innerHTML;
+      document.querySelector('.delivery-logo').innerHTML = logoText;
+      document.querySelector('.map-label').textContent = name.split('–')[1]?.trim() || name;
+    }
+    closeDeliveryModal();
+    showToast('Delivery method updated!');
+  }
+
+  // ---- ADD PRODUCTS MODAL ----
+  const availableProducts = [
+    { name: 'Hyaluronic Acid Serum', size: '30 ml', price: 269, emoji: '💧' },
+    { name: 'Collagen Boosting Eye Cream', size: '15 ml', price: 319, emoji: '👁️' },
+    { name: 'AHA/BHA Exfoliating Peel', size: '50 ml', price: 249, emoji: '✨' },
+    { name: 'SPF 50 Daily Sunscreen', size: '50 ml', price: 199, emoji: '☀️' },
+    { name: 'Rose Hip Body Oil', size: '200 ml', price: 329, emoji: '🌹' },
+    { name: 'Ceramide Barrier Cream', size: '50 ml', price: 289, emoji: '🛡️' },
+    { name: 'Peptide Firming Serum', size: '30 ml', price: 359, emoji: '🧬' },
+    { name: 'Micellar Cleansing Water', size: '250 ml', price: 149, emoji: '💦' },
+    { name: 'Green Tea Clay Mask', size: '75 ml', price: 179, emoji: '🍵' },
+    { name: 'Squalane Lip Treatment', size: '10 ml', price: 129, emoji: '💋' },
+    { name: 'Bakuchiol Night Serum', size: '30 ml', price: 299, emoji: '🌙' },
+    { name: 'Azelaic Acid Gel', size: '30 ml', price: 219, emoji: '🔬' },
+  ];
+
+  let addedProducts = [];
+
+  function renderAvailableProducts(filter = '') {
+    const container = document.getElementById('availableProducts');
+    const filtered = availableProducts.filter(p =>
+      p.name.toLowerCase().includes(filter.toLowerCase())
+    );
+    container.innerHTML = filtered.map((p, i) => {
+      const isAdded = addedProducts.find(a => a.name === p.name);
+      return `
+        <div class="add-product-item">
+          <div class="add-product-thumb">${p.emoji}</div>
+          <div class="add-product-info">
+            <div class="add-product-name">${p.name}</div>
+            <div class="add-product-price">${p.size} · ${p.price} kr</div>
+          </div>
+          <button class="btn-add ${isAdded ? 'added' : ''}" onclick="toggleProduct('${p.name}', ${p.price}, '${p.emoji}')">
+            ${isAdded ? '✓ Added' : '+ Add'}
+          </button>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function toggleProduct(name, price, emoji) {
+    const idx = addedProducts.findIndex(p => p.name === name);
+    if (idx >= 0) {
+      addedProducts.splice(idx, 1);
+    } else {
+      addedProducts.push({ name, price, emoji });
+    }
+    renderAvailableProducts(document.getElementById('productSearch').value);
+    renderAddedItems();
+  }
+
+  function renderAddedItems() {
+    const section = document.getElementById('addedItemsSection');
+    const list = document.getElementById('addedItemsList');
+    if (addedProducts.length === 0) {
+      section.classList.remove('visible');
+      return;
+    }
+    section.classList.add('visible');
+    list.innerHTML = addedProducts.map(p => `
+      <div class="added-item">
+        <span>${p.emoji} ${p.name} — <strong>${p.price} kr</strong></span>
+        <button class="remove-item" onclick="toggleProduct('${p.name}', ${p.price}, '${p.emoji}')">Remove</button>
+      </div>
+    `).join('');
+  }
+
+  function filterProducts() {
+    const val = document.getElementById('productSearch').value;
+    renderAvailableProducts(val);
+  }
+
+  function openAddProductsModal() {
+    if (addTimeLeft <= 0) return;
+    renderAvailableProducts();
+    renderAddedItems();
+    document.getElementById('addProductsModal').classList.add('active');
+  }
+  function closeAddProductsModal(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('addProductsModal').classList.remove('active');
+  }
+
+  function updateOrder() {
+    if (addedProducts.length === 0) return;
+
+    // Add products to the order list
+    const productList = document.getElementById('productList');
+    addedProducts.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'product-item';
+      div.innerHTML = `
+        <div class="product-thumb">${p.emoji}</div>
+        <div class="product-info">
+          <div class="product-name">${p.name}</div>
+          <div class="product-variant">Added to order</div>
+        </div>
+        <div>
+          <div class="product-price">${p.price} kr</div>
+          <div class="product-qty">Qty: 1</div>
+        </div>
+      `;
+      productList.appendChild(div);
+    });
+
+    // Update summary
+    const addedTotal = addedProducts.reduce((sum, p) => sum + p.price, 0);
+    const newItemCount = 5 + addedProducts.length;
+    const newSubtotal = 1465 + addedTotal;
+    const newDiscount = Math.round(newSubtotal * 0.1);
+    const newTotal = newSubtotal + 49 - newDiscount;
+
+    document.getElementById('subtotalAmount').textContent = newSubtotal.toLocaleString('sv-SE') + ' kr';
+    document.getElementById('totalAmount').textContent = newTotal.toLocaleString('sv-SE') + ' kr';
+    document.querySelector('.card-header .subtitle').textContent = newItemCount + ' items';
+
+    // Reset
+    addedProducts = [];
+    closeAddProductsModal();
+    showToast(`Order updated with ${newItemCount - 5} new item(s)!`);
+  }
+
+  // ---- TOAST ----
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // Initial render
+  renderAvailableProducts();
+</script>
+</body>
+</html>
