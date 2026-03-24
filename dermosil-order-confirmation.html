@@ -78,6 +78,65 @@
     color: white;
     padding: 32px 24px 28px;
     text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Truck animation */
+  .truck-scene {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 36px;
+    pointer-events: none;
+  }
+  .truck-road {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(255,255,255,0.18);
+  }
+  .truck-dashes {
+    position: absolute;
+    bottom: 7px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    overflow: hidden;
+  }
+  .truck-dashes::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 1px;
+    width: 300%;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.25) 0px,
+      rgba(255,255,255,0.25) 20px,
+      transparent 20px,
+      transparent 40px
+    );
+    animation: dashMove 1.5s linear infinite;
+  }
+  @keyframes dashMove {
+    from { transform: translateX(0); }
+    to { transform: translateX(-80px); }
+  }
+  .truck-svg {
+    position: absolute;
+    bottom: 8px;
+    animation: truckDrive 8s linear infinite;
+    width: 72px;
+    height: 28px;
+  }
+  @keyframes truckDrive {
+    0%   { left: -90px; }
+    100% { left: calc(100% + 20px); }
   }
   .success-icon {
     width: 56px;
@@ -735,6 +794,33 @@
   <div class="success-icon">&#10003;</div>
   <h1>Thank you for your order</h1>
   <p>Thanks for choosing Dermosil. We have now received your order and our warehouse team will process it shortly.</p>
+
+  <!-- Truck animation -->
+  <div class="truck-scene">
+    <div class="truck-road"></div>
+    <div class="truck-dashes"></div>
+    <svg class="truck-svg" viewBox="0 0 72 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Trailer -->
+      <rect x="0" y="4" width="46" height="18" rx="2" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.35)" stroke-width="1"/>
+      <!-- Cab -->
+      <rect x="46" y="8" width="20" height="14" rx="2" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.45)" stroke-width="1"/>
+      <!-- Cab window -->
+      <rect x="51" y="10" width="10" height="7" rx="1" fill="rgba(255,255,255,0.45)"/>
+      <!-- Front bumper -->
+      <rect x="64" y="17" width="6" height="3" rx="1" fill="rgba(255,255,255,0.3)"/>
+      <!-- Headlight -->
+      <rect x="65" y="13" width="3" height="3" rx="0.5" fill="rgba(255,255,255,0.7)"/>
+      <!-- Rear wheel -->
+      <circle cx="12" cy="22" r="4" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <circle cx="12" cy="22" r="1.5" fill="rgba(255,255,255,0.5)"/>
+      <!-- Front axle wheels -->
+      <circle cx="28" cy="22" r="4" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <circle cx="28" cy="22" r="1.5" fill="rgba(255,255,255,0.5)"/>
+      <!-- Cab wheel -->
+      <circle cx="56" cy="22" r="4" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"/>
+      <circle cx="56" cy="22" r="1.5" fill="rgba(255,255,255,0.5)"/>
+    </svg>
+  </div>
 </div>
 
 <div class="content">
