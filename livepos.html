@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Cards - Dermosil Live POS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --petrol: #4e6c8c;
+    --petrol-dark: #3a5570;
+    --petrol-light: #6889a8;
+    --green: #0e6238;
+    --green-light: #dcede7;
+    --red: #b84356;
+    --red-light: #f9e4e8;
+    --gold: #e2c06a;
+    --gold-light: #fdf6e3;
+    --bg: #f7f7f7;
+    --white: #ffffff;
+    --text: #444444;
+    --text-light: #8f8f8f;
+    --border: #dadada;
+    --border-light: #ececec;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.18);
+    --radius: 8px;
+    --radius-sm: 4px;
+    --transition: 0.2s ease;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  /* ── Background: POS Screenshot ── */
+  .pos-background {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+  .pos-background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top center;
+    display: block;
+  }
+
+  /* ── Overlay dimming ── */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+  }
+
+  /* ── Gift Card Modal ── */
+  .gc-modal {
+    background: var(--white);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    width: 560px;
+    max-width: 94vw;
+    max-height: 88vh;
+    overflow-y: auto;
+    position: relative;
+    z-index: 20;
+    animation: modalIn 0.25s ease-out;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* ── Modal Header ── */
+  .gc-modal-header {
+    padding: 20px 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .gc-modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+  }
+  .btn-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--bg);
+    color: var(--text-light);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    font-size: 18px;
+    line-height: 1;
+  }
+  .btn-close:hover { background: var(--border-light); color: var(--text); }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    padding: 0 24px;
+    border-bottom: 2px solid var(--border-light);
+    margin-top: 16px;
+  }
+  .tab {
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-light);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: var(--transition);
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .tab:hover { color: var(--petrol); }
+  .tab.active {
+    color: var(--petrol);
+    border-bottom-color: var(--petrol);
+    font-weight: 600;
+  }
+
+  /* ── Tab Content ── */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .gc-modal-body {
+    padding: 20px 24px 24px;
+  }
+
+  /* ── Form Elements ── */
+  .form-group { margin-bottom: 18px; }
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .form-sublabel {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text);
+    transition: var(--transition);
+    background: var(--white);
+  }
+  .form-input:focus {
+    outline: none;
+    border-color: var(--petrol);
+    box-shadow: 0 0 0 3px rgba(78,108,140,0.1);
+  }
+  .form-input::placeholder { color: var(--border); }
+  .form-input.mono {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+  .input-with-icon { position: relative; }
+  .input-with-icon .form-input { padding-right: 44px; }
+  .input-icon-btn {
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--petrol);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+  }
+  .input-icon-btn:hover { background: var(--petrol-dark); }
+
+  /* ── Amount Grid ── */
+  .amount-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .amount-btn {
+    padding: 12px 8px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--white);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    font-family: inherit;
+  }
+  .amount-btn:hover {
+    border-color: var(--petrol-light);
+    background: rgba(78,108,140,0.04);
+  }
+  .amount-btn.selected {
+    border-color: var(--petrol);
+    background: rgba(78,108,140,0.08);
+    color: var(--petrol);
+  }
+  .amount-btn.custom {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .amount-btn.custom svg { opacity: 0.5; }
+  .custom-amount-row {
+    display: none;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .custom-amount-row.visible { display: flex; }
+  .custom-amount-row .form-input {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .currency-suffix {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-light);
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: var(--transition);
+  }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-primary { background: var(--petrol); color: white; }
+  .btn-primary:hover:not(:disabled) { background: var(--petrol-dark); }
+  .btn-outlined { background: transparent; color: var(--petrol); border: 1px solid var(--petrol); }
+  .btn-outlined:hover:not(:disabled) { background: rgba(78,108,140,0.06); }
+  .btn-success { background: var(--green); color: white; }
+  .btn-success:hover:not(:disabled) { background: #0a4d2c; }
+  .btn-gold { background: var(--gold); color: #5a4a1a; }
+  .btn-gold:hover:not(:disabled) { background: #d4b05c; }
+  .btn-lg { padding: 12px 24px; font-size: 15px; font-weight: 600; }
+  .btn-full { width: 100%; }
+
+  /* ── Gift Card Visual ── */
+  .gift-card-visual {
+    background: linear-gradient(135deg, var(--petrol) 0%, var(--petrol-dark) 100%);
+    border-radius: 12px;
+    padding: 20px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 16px;
+    min-height: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .gift-card-visual::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+  .gift-card-visual::after {
+    content: '';
+    position: absolute;
+    bottom: -20px; left: -20px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .gc-brand {
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.8;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .gc-label {
+    font-size: 17px;
+    font-weight: 700;
+    margin-top: 4px;
+  }
+  .gc-code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 15px;
+    letter-spacing: 3px;
+    margin-top: 8px;
+    opacity: 0.9;
+  }
+  .gc-amount {
+    font-size: 28px;
+    font-weight: 700;
+    text-align: right;
+    position: relative;
+    z-index: 1;
+  }
+  .gc-amount small {
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.7;
+    display: block;
+    text-align: right;
+  }
+
+  /* ── Scan Zone ── */
+  .scan-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    color: var(--text-light);
+    margin-bottom: 12px;
+    transition: var(--transition);
+    cursor: pointer;
+    position: relative;
+  }
+  .scan-zone:hover {
+    border-color: var(--petrol-light);
+    background: rgba(78,108,140,0.02);
+  }
+  .scan-zone.scanning {
+    border-color: var(--petrol);
+    background: rgba(78,108,140,0.04);
+  }
+  .scan-zone svg { margin-bottom: 6px; opacity: 0.4; }
+  .scan-zone p { font-size: 13px; }
+  .scan-line {
+    position: absolute;
+    left: 10%; right: 10%;
+    height: 2px;
+    background: var(--red);
+    top: 30%;
+    display: none;
+    animation: scanMove 1.5s ease-in-out infinite;
+    box-shadow: 0 0 8px rgba(184,67,86,0.5);
+  }
+  .scan-zone.scanning .scan-line { display: block; }
+  @keyframes scanMove {
+    0%, 100% { top: 20%; }
+    50% { top: 75%; }
+  }
+
+  .or-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0;
+    color: var(--text-light);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .or-divider::before, .or-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border-light);
+  }
+
+  /* ── Result Panels ── */
+  .result-panel {
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-top: 14px;
+    display: none;
+  }
+  .result-panel.visible { display: block; }
+  .result-panel.success { background: var(--green-light); border: 1px solid #b3d4c4; }
+  .result-panel.error { background: var(--red-light); border: 1px solid #e8b8c0; }
+  .result-panel.info { background: var(--gold-light); border: 1px solid #e8d9a8; }
+  .result-panel h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .result-panel p { font-size: 13px; line-height: 1.5; color: var(--text); }
+
+  /* ── History Table ── */
+  .gc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .gc-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-weight: 600;
+    color: var(--text-light);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+  }
+  .gc-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .gc-table tr:last-child td { border-bottom: none; }
+
+  /* ── Toast ── */
+  .toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .toast {
+    background: var(--white);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    transform: translateX(120%);
+    animation: toastIn 0.3s ease forwards;
+    border-left: 4px solid var(--green);
+    max-width: 340px;
+    font-family: 'Inter', sans-serif;
+  }
+  .toast.error { border-left-color: var(--red); }
+  .toast.info { border-left-color: var(--petrol); }
+  @keyframes toastIn {
+    to { transform: translateX(0); }
+  }
+
+  /* ── Confirm Modal (inner) ── */
+  .confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .confirm-overlay.visible { display: flex; }
+  .confirm-box {
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    width: 380px;
+    max-width: 90vw;
+  }
+  .confirm-box-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .confirm-box-body {
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .confirm-box-footer {
+    padding: 12px 20px 16px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  /* ── Gift Card Trigger Button ── */
+  .gc-trigger-btn {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    background: var(--petrol);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(78,108,140,0.35);
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .gc-trigger-btn:hover {
+    background: var(--petrol-dark);
+    box-shadow: 0 6px 20px rgba(78,108,140,0.45);
+    transform: translateX(-50%) translateY(-1px);
+  }
+  .gc-trigger-btn:active {
+    transform: translateX(-50%) translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════ BACKGROUND: POS Screenshot ═══════ -->
+<div class="pos-background">
+  <img src="./Live POS.png" alt="Dermosil Live POS">
+</div>
+
+<!-- ═══════ GIFT CARD TRIGGER BUTTON ═══════ -->
+<button class="gc-trigger-btn" onclick="openGcModal()">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13"/><path d="M3 12h18"/><path d="M8 8c0-2 1-4 4-4s4 2 4 4"/></svg>
+  Gift Cards
+</button>
+
+<!-- ═══════ MODAL BACKDROP + GIFT CARD MODAL ═══════ -->
+<div class="modal-backdrop" id="modalBackdrop" style="display:none;">
+  <div class="gc-modal">
+
+    <!-- Modal Header -->
+    <div class="gc-modal-header">
+      <h2>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--petrol)" stroke-width="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13"/><path d="M3 12h18"/><path d="M8 8c0-2 1-4 4-4s4 2 4 4"/></svg>
+        Gift Card
+      </h2>
+      <button class="btn-close" onclick="closeGcModal()" title="Close">✕</button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('redeem', this)">Redeem</button>
+      <button class="tab" onclick="switchTab('topup', this)">Buy</button>
+    </div>
+
+    <!-- ══ TAB: REDEEM ══ -->
+    <div class="tab-content active" id="tab-redeem">
+      <div class="gc-modal-body">
+        <div class="scan-zone" id="redeemScanZone" onclick="simulateScan('redeem')">
+          <div class="scan-line"></div>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><path d="M21 14v3h-3"/><path d="M21 21h-3v-3"/>
+          </svg>
+          <p>Click to simulate barcode scan</p>
+        </div>
+
+        <div class="or-divider">or enter code manually</div>
+
+        <div class="form-group">
+          <div class="input-with-icon">
+            <input type="text" class="form-input mono" id="redeemCodeInput" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" oninput="formatCardCode(this)">
+            <button class="input-icon-btn" onclick="lookupForRedeem()" title="Look up card">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Redeem card info -->
+        <div id="redeemCardInfo" style="display:none;">
+          <div class="gift-card-visual">
+            <div>
+              <div class="gc-brand">Dermosil</div>
+              <div class="gc-label">Gift Card</div>
+              <div class="gc-code" id="redeemDisplayCode"></div>
+            </div>
+            <div class="gc-amount">
+              <span id="redeemCardBalance">0 €</span>
+              <small>Available balance</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Amount to redeem</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <button class="btn btn-outlined" onclick="setRedeemFull()" id="btnRedeemFull">Use full balance</button>
+              <span style="color:var(--text-light);font-size:13px;">or</span>
+              <input type="number" class="form-input" id="redeemAmountInput" placeholder="Amount" min="0.01" step="0.01" style="max-width:120px;">
+              <span class="currency-suffix">€</span>
+            </div>
+          </div>
+
+          <button class="btn btn-success btn-lg btn-full" onclick="applyRedemption()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            Apply to Order
+          </button>
+        </div>
+
+        <div class="result-panel success" id="redeemResult">
+          <h4>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            Gift Card Applied
+          </h4>
+          <p id="redeemResultText"></p>
+        </div>
+        <div class="result-panel error" id="redeemError">
+          <h4>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+            Error
+          </h4>
+          <p id="redeemErrorText"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TAB: BUY ══ -->
+    <div class="tab-content" id="tab-topup">
+      <div class="gc-modal-body">
+        <div class="scan-zone" onclick="simulateScan('topup')">
+          <div class="scan-line"></div>
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><path d="M21 14v3h-3"/><path d="M21 21h-3v-3"/>
+          </svg>
+          <p>Click to simulate barcode scan</p>
+        </div>
+
+        <div class="or-divider">or enter code manually</div>
+
+        <div class="form-group">
+          <div class="input-with-icon">
+            <input type="text" class="form-input mono" id="topupCodeInput" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" oninput="formatCardCode(this)">
+            <button class="input-icon-btn" onclick="lookupForTopup()" title="Look up card">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="topupCardInfo" style="display:none;">
+          <div class="gift-card-visual" style="min-height:110px;">
+            <div>
+              <div class="gc-brand">Dermosil</div>
+              <div class="gc-label">Gift Card</div>
+              <div class="gc-code" id="topupDisplayCode"></div>
+            </div>
+            <div class="gc-amount">
+              <span id="topupCurrentBalance">0 €</span>
+              <small>Current balance</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Amount to add</label>
+            <div class="amount-grid">
+              <button class="amount-btn" onclick="selectTopupAmount(this, 10)">+10 €</button>
+              <button class="amount-btn" onclick="selectTopupAmount(this, 20)">+20 €</button>
+              <button class="amount-btn" onclick="selectTopupAmount(this, 25)">+25 €</button>
+              <button class="amount-btn" onclick="selectTopupAmount(this, 50)">+50 €</button>
+              <button class="amount-btn" onclick="selectTopupAmount(this, 100)">+100 €</button>
+              <button class="amount-btn custom" onclick="showCustomTopup()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                Custom
+              </button>
+            </div>
+            <div class="custom-amount-row" id="customTopupRow">
+              <input type="number" class="form-input" id="customTopupInput" placeholder="Enter amount" min="1" max="500" step="0.01">
+              <span class="currency-suffix">€</span>
+            </div>
+          </div>
+
+          <button class="btn btn-gold btn-lg btn-full" id="btnTopup" disabled onclick="applyTopup()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Top up and add to order
+          </button>
+        </div>
+
+        <div class="result-panel success" id="topupResult">
+          <h4>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            Top Up Successful
+          </h4>
+          <p id="topupResultText"></p>
+        </div>
+        <div class="result-panel error" id="topupError">
+          <h4>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+            Error
+          </h4>
+          <p id="topupErrorText"></p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.gc-modal -->
+</div><!-- /.modal-backdrop -->
+
+<!-- ═══════ TOAST ═══════ -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ═══════ CONFIRM DIALOG ═══════ -->
+<div class="confirm-overlay" id="confirmModal">
+  <div class="confirm-box">
+    <div class="confirm-box-header" id="confirmTitle">Confirm</div>
+    <div class="confirm-box-body" id="confirmBody"></div>
+    <div class="confirm-box-footer">
+      <button class="btn btn-outlined" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-primary" id="confirmBtn" onclick="doConfirm()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════
+// SIMULATED GIFT CARD DATABASE
+// ═══════════════════════════════════════
+const giftCards = {};
+const orderTotal = 11.80; // from the screenshot
+let currentOrderTotal = orderTotal;
+let appliedGiftCards = [];
+let selectedTopupAmount = null;
+let topupCardCode = null;
+let pendingConfirmAction = null;
+
+// Pre-seed demo cards
+const demoCards = [
+  { code: '4821-7395-6014-2283', originalAmount: 50, balance: 35.50, created: '2026-04-28',
+    history: [
+      { date: '2026-04-28', type: 'Created', amount: 50.00 },
+      { date: '2026-05-01', type: 'Redeemed', amount: -14.50 }
+    ]},
+  { code: '1190-5523-8847-0361', originalAmount: 25, balance: 25.00, created: '2026-05-05',
+    history: [
+      { date: '2026-05-05', type: 'Created', amount: 25.00 }
+    ]},
+  { code: '8834-0017-4459-7712', originalAmount: 100, balance: 0, created: '2026-03-15',
+    history: [
+      { date: '2026-03-15', type: 'Created', amount: 100.00 },
+      { date: '2026-03-20', type: 'Redeemed', amount: -62.30 },
+      { date: '2026-04-10', type: 'Redeemed', amount: -37.70 }
+    ]}
+];
+demoCards.forEach(c => {
+  giftCards[c.code] = { ...c, status: c.balance > 0 ? 'active' : 'empty' };
+});
+
+// ─── Utility ───
+function formatEur(n) { return n.toFixed(2) + ' €'; }
+function todayStr() { return new Date().toISOString().slice(0,10); }
+
+function formatCardCode(input) {
+  let v = input.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (v.length > 16) v = v.slice(0, 16);
+  var parts = [];
+  for (var i = 0; i < v.length; i += 4) {
+    parts.push(v.slice(i, i + 4));
+  }
+  input.value = parts.join('-');
+}
+
+// ─── Modal open/close ───
+function openGcModal() {
+  document.getElementById('modalBackdrop').style.display = 'flex';
+}
+function closeGcModal() {
+  document.getElementById('modalBackdrop').style.display = 'none';
+}
+
+// ─── Toast ───
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  const icon = type === 'error'
+    ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>'
+    : type === 'info'
+    ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--petrol)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v.01M12 8v4"/></svg>'
+    : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+  t.innerHTML = icon + '<span>' + msg + '</span>';
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = '0.3s'; setTimeout(() => t.remove(), 300); }, 3500);
+}
+
+// ─── Confirm Dialog ───
+function showConfirm(title, body, btnText, action) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmBody').textContent = body;
+  document.getElementById('confirmBtn').textContent = btnText;
+  pendingConfirmAction = action;
+  document.getElementById('confirmModal').classList.add('visible');
+}
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('visible');
+  pendingConfirmAction = null;
+}
+function doConfirm() {
+  if (pendingConfirmAction) pendingConfirmAction();
+  closeConfirm();
+}
+
+// ─── Tab Switching ───
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// REDEEM
+// ═══════════════════════════════════════
+function lookupForRedeem() {
+  const code = document.getElementById('redeemCodeInput').value.trim();
+  if (!code) return;
+  const card = giftCards[code];
+  document.getElementById('redeemResult').classList.remove('visible');
+  document.getElementById('redeemError').classList.remove('visible');
+
+  if (!card) {
+    document.getElementById('redeemError').classList.add('visible');
+    document.getElementById('redeemErrorText').textContent = 'No gift card found with code "' + code + '".';
+    document.getElementById('redeemCardInfo').style.display = 'none';
+    return;
+  }
+  if (card.balance <= 0) {
+    document.getElementById('redeemError').classList.add('visible');
+    document.getElementById('redeemErrorText').textContent = 'Gift card ' + code + ' has no remaining balance.';
+    document.getElementById('redeemCardInfo').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('redeemCardInfo').style.display = 'block';
+  document.getElementById('redeemDisplayCode').textContent = code;
+  document.getElementById('redeemCardBalance').textContent = formatEur(card.balance);
+  document.getElementById('redeemAmountInput').value = '';
+  document.getElementById('redeemAmountInput').max = card.balance;
+}
+
+function setRedeemFull() {
+  const code = document.getElementById('redeemCodeInput').value.trim();
+  const card = giftCards[code];
+  if (card) {
+    const amount = Math.min(card.balance, currentOrderTotal);
+    document.getElementById('redeemAmountInput').value = amount.toFixed(2);
+  }
+}
+
+function applyRedemption() {
+  const code = document.getElementById('redeemCodeInput').value.trim();
+  const card = giftCards[code];
+  if (!card) return;
+
+  let amount = parseFloat(document.getElementById('redeemAmountInput').value);
+  if (!amount || amount <= 0) {
+    showToast('Please enter an amount to redeem', 'error');
+    return;
+  }
+  if (amount > card.balance) {
+    showToast('Amount exceeds card balance (' + formatEur(card.balance) + ')', 'error');
+    return;
+  }
+  if (amount > currentOrderTotal) {
+    amount = currentOrderTotal;
+  }
+
+  showConfirm(
+    'Confirm Redemption',
+    'Redeem ' + formatEur(amount) + ' from gift card ' + code + '? Card balance after: ' + formatEur(card.balance - amount) + '.',
+    'Redeem',
+    function() {
+      card.balance = Math.round((card.balance - amount) * 100) / 100;
+      if (card.balance <= 0) card.status = 'empty';
+      card.history.push({ date: todayStr(), type: 'Redeemed', amount: -amount });
+      appliedGiftCards.push({ code: code, amount: amount });
+      currentOrderTotal = Math.max(0, Math.round((currentOrderTotal - amount) * 100) / 100);
+
+      document.getElementById('redeemCardInfo').style.display = 'none';
+      document.getElementById('redeemResult').classList.add('visible');
+
+      var remaining = currentOrderTotal > 0
+        ? ' Remaining to pay: ' + formatEur(currentOrderTotal) + '.'
+        : ' Order fully covered!';
+      document.getElementById('redeemResultText').textContent =
+        formatEur(amount) + ' applied from gift card ' + code + '. Card balance: ' + formatEur(card.balance) + '.' + remaining;
+
+      showToast(formatEur(amount) + ' redeemed from ' + code);
+      document.getElementById('redeemCodeInput').value = '';
+    }
+  );
+}
+
+// ═══════════════════════════════════════
+// CHECK BALANCE
+// ═══════════════════════════════════════
+function checkBalance() {
+  const code = document.getElementById('balanceCodeInput').value.trim();
+  if (!code) return;
+  const card = giftCards[code];
+  document.getElementById('balanceError').classList.remove('visible');
+
+  if (!card) {
+    document.getElementById('balanceCardInfo').style.display = 'none';
+    document.getElementById('balanceError').classList.add('visible');
+    return;
+  }
+
+  document.getElementById('balanceCardInfo').style.display = 'block';
+  document.getElementById('balanceDisplayCode').textContent = code;
+  document.getElementById('balanceDisplayAmount').textContent = formatEur(card.balance);
+
+  const tbody = document.getElementById('balanceHistory');
+  tbody.innerHTML = '';
+  card.history.forEach(function(h) {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + h.date + '</td>' +
+      '<td>' + h.type + '</td>' +
+      '<td style="text-align:right;font-weight:500;color:' + (h.amount < 0 ? 'var(--red)' : 'var(--green)') + '">' +
+        (h.amount > 0 ? '+' : '') + formatEur(Math.abs(h.amount)) +
+      '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// ═══════════════════════════════════════
+// TOP UP
+// ═══════════════════════════════════════
+function lookupForTopup() {
+  const code = document.getElementById('topupCodeInput').value.trim();
+  if (!code) return;
+  document.getElementById('topupResult').classList.remove('visible');
+  document.getElementById('topupError').classList.remove('visible');
+
+  // If card doesn't exist yet, create it at 0 €
+  if (!giftCards[code]) {
+    giftCards[code] = {
+      code: code,
+      originalAmount: 0,
+      balance: 0,
+      status: 'empty',
+      created: todayStr(),
+      history: []
+    };
+  }
+
+  topupCardCode = code;
+  document.getElementById('topupCardInfo').style.display = 'block';
+  document.getElementById('topupDisplayCode').textContent = code;
+  document.getElementById('topupCurrentBalance').textContent = formatEur(giftCards[code].balance);
+  selectedTopupAmount = null;
+  document.getElementById('btnTopup').disabled = true;
+  document.querySelectorAll('#tab-topup .amount-btn').forEach(function(b) { b.classList.remove('selected'); });
+}
+
+function selectTopupAmount(btn, amount) {
+  document.querySelectorAll('#tab-topup .amount-btn').forEach(function(b) { b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  selectedTopupAmount = amount;
+  document.getElementById('customTopupRow').classList.remove('visible');
+  document.getElementById('btnTopup').disabled = false;
+}
+
+function showCustomTopup() {
+  document.querySelectorAll('#tab-topup .amount-btn').forEach(function(b) { b.classList.remove('selected'); });
+  document.querySelector('#tab-topup .amount-btn.custom').classList.add('selected');
+  document.getElementById('customTopupRow').classList.add('visible');
+  document.getElementById('customTopupInput').focus();
+  selectedTopupAmount = null;
+  document.getElementById('btnTopup').disabled = true;
+  document.getElementById('customTopupInput').oninput = function() {
+    var v = parseFloat(this.value);
+    selectedTopupAmount = v > 0 ? v : null;
+    document.getElementById('btnTopup').disabled = !selectedTopupAmount;
+  };
+}
+
+function applyTopup() {
+  if (!topupCardCode || !selectedTopupAmount) return;
+  const card = giftCards[topupCardCode];
+  if (!card) return;
+
+  showConfirm(
+    'Confirm Top Up',
+    'Add ' + formatEur(selectedTopupAmount) + ' to gift card ' + topupCardCode + '? New balance: ' + formatEur(card.balance + selectedTopupAmount) + '.',
+    'Top Up',
+    function() {
+      card.balance = Math.round((card.balance + selectedTopupAmount) * 100) / 100;
+      if (card.status === 'empty') card.status = 'active';
+      card.history.push({ date: todayStr(), type: 'Top Up', amount: selectedTopupAmount });
+
+      document.getElementById('topupCardInfo').style.display = 'none';
+      document.getElementById('topupResult').classList.add('visible');
+      document.getElementById('topupResultText').textContent =
+        formatEur(selectedTopupAmount) + ' added to gift card ' + topupCardCode + '. New balance: ' + formatEur(card.balance) + '.';
+
+      showToast(formatEur(selectedTopupAmount) + ' added to ' + topupCardCode);
+      document.getElementById('topupCodeInput').value = '';
+      topupCardCode = null;
+      selectedTopupAmount = null;
+    }
+  );
+}
+
+// ═══════════════════════════════════════
+// BARCODE SCAN SIMULATION
+// ═══════════════════════════════════════
+function simulateScan(context) {
+  var zone = event.currentTarget;
+  if (zone.classList.contains('scanning')) return;
+  zone.classList.add('scanning');
+
+  setTimeout(function() {
+    zone.classList.remove('scanning');
+    // Pick a card with balance for redeem, any card for other contexts
+    var codes = Object.keys(giftCards);
+    var code;
+    if (context === 'redeem') {
+      var active = codes.filter(function(c) { return giftCards[c].balance > 0; });
+      code = active.length > 0 ? active[Math.floor(Math.random() * active.length)] : codes[0];
+    } else {
+      code = codes[Math.floor(Math.random() * codes.length)];
+    }
+
+    if (context === 'redeem') {
+      document.getElementById('redeemCodeInput').value = code;
+      lookupForRedeem();
+    } else if (context === 'balance') {
+      document.getElementById('balanceCodeInput').value = code;
+      checkBalance();
+    } else if (context === 'topup') {
+      document.getElementById('topupCodeInput').value = code;
+      lookupForTopup();
+    }
+    showToast('Scanned: ' + code, 'info');
+  }, 1800);
+}
+</script>
+
+</body>
+</html>
